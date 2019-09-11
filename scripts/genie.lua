@@ -48,6 +48,11 @@ newoption {
 	description = "Enable building examples.",
 }
 
+newoption {
+	trigger = "with-usercode",
+	description = "Generate project for userprojects in usercode directory,",
+}
+
 newaction {
 	trigger = "idl",
 	description = "Generate bgfx interface source code",
@@ -429,6 +434,63 @@ function exampleProject(_combined, ...)
 
 end
 
+
+function userProject(_combined, ...)
+
+	if _combined then
+
+		project ("user")
+			uuid (os.uuid("user"))
+			kind "WindowedApp"
+
+		for _, name in ipairs({...}) do
+
+			files {
+				path.join(BGFX_DIR, "usercode", name, "**.c"),
+				path.join(BGFX_DIR, "usercode", name, "**.cpp"),
+				path.join(BGFX_DIR, "usercode", name, "**.h"),
+			}
+
+			removefiles {
+				path.join(BGFX_DIR, "usercode", name, "**.bin.h"),
+			}
+
+		end
+
+		files {
+			path.join(BGFX_DIR, "examples/25-c99/helloworld.c"), -- hack for _main_
+		}
+
+		exampleProjectDefaults()
+
+	else
+
+		for _, name in ipairs({...}) do
+			project ("user-" .. name)
+				uuid (os.uuid("user-" .. name))
+				kind "WindowedApp"
+
+			files {
+				path.join(BGFX_DIR, "usercode", name, "**.c"),
+				path.join(BGFX_DIR, "usercode", name, "**.cpp"),
+				path.join(BGFX_DIR, "usercode", name, "**.h"),
+			}
+
+			removefiles {
+				path.join(BGFX_DIR, "usercode", name, "**.bin.h"),
+			}
+
+			defines {
+				"ENTRY_CONFIG_IMPLEMENT_MAIN=1",
+			}
+
+			exampleProjectDefaults()
+		end
+	end
+
+end
+
+
 dofile "bgfx.lua"
 
 group "libs"
@@ -496,11 +558,20 @@ or _OPTIONS["with-combined-examples"] then
 		, "40-svt"
 		, "41-tess"
 		)
-
+		
+	
 	-- C99 source doesn't compile under WinRT settings
 	if not premake.vstudio.iswinrt() then
 		exampleProject(false, "25-c99")
 	end
+end
+
+if _OPTIONS["with-usercode"] then
+	group "user"
+	
+	userProject(_OPTIONS["with-combined-examples"]
+		, "userproject0"
+		)
 end
 
 if _OPTIONS["with-shared-lib"] then
