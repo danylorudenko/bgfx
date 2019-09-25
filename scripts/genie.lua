@@ -506,7 +506,8 @@ end
 
 if _OPTIONS["with-examples"]
 or _OPTIONS["with-combined-examples"]
-or _OPTIONS["with-tools"] then
+or _OPTIONS["with-tools"]
+or _OPTIONS["with-usercode"] then
 	group "examples"
 	dofile "example-common.lua"
 end
