@@ -17,8 +17,8 @@ public:
     WindowClass(WindowClass&& rhs);
     WindowClass& operator=(WindowClass&& rhs);
 
-	WindowClass(WindowClass const&) = delete;
-	WindowClass& operator=(WindowClass const&) = delete;
+    WindowClass(WindowClass const&) = delete;
+    WindowClass& operator=(WindowClass const&) = delete;
 
     operator bool() const;
 
