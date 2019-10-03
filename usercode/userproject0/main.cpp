@@ -79,11 +79,20 @@
 #include <bx/uint32_t.h>
 #include "common.h"
 #include "bgfx_utils.h"
-//#include "logo.h"
 #include "imgui/imgui.h"
 
 namespace
 {
+
+float g_Vertices[] =
+{
+     0.5f, -0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
+};
+
+bgfx::VertexBufferHandle g_VertexBuffer;
+bgfx::ProgramHandle g_Program;
 
 class ExampleHelloWorld : public entry::AppI
 {
@@ -122,11 +131,26 @@ public:
         );
 
         imguiCreate();
+
+        bgfx::VertexLayout vLayout;
+        vLayout
+            .begin()
+            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8)
+            .end();
+
+        //bgfx::VertexLayoutHandle vLayoutHandle = bgfx::createVertexLayout(vLayout);
+        //bgfx::makeRef(mem, size)
+        g_VertexBuffer = bgfx::createVertexBuffer(bgfx::makeRef(g_Vertices, sizeof(g_Vertices)), vLayout);
+        g_Program = loadProgram("vs_triangle", "fs_triangle");
     }
 
     virtual int shutdown() override
     {
         imguiDestroy();
+
+        bgfx::destroy(g_VertexBuffer);
+        bgfx::destroy(g_Program);
 
         // Shutdown bgfx.
         bgfx::shutdown();
@@ -151,6 +175,11 @@ public:
             showExampleDialog(this);
 
             imguiEndFrame();
+
+            bgfx::setVertexBuffer(0, g_VertexBuffer);
+            bgfx::setState(BGFX_STATE_DEFAULT);
+            bgfx::submit(0, g_Program);
+
 
             bgfx::frame();
 
