@@ -86,9 +86,9 @@ namespace
 
 float g_Vertices[] =
 {
-     0.5f, -0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
+    -0.5f, -0.5f, 0.0f, 0xff000000,
+     0.5f, -0.5f, 0.0f, 0xffff0000,
+     0.0f,  0.5f, 0.0f, 0x0000ff00
 };
 
 bgfx::VertexBufferHandle g_VertexBuffer;
@@ -176,6 +176,9 @@ public:
 
             imguiEndFrame();
 
+            bgfx::touch(0);
+
+            bgfx::setViewRect(0, 0, 0, (uint16_t)m_width, (uint16_t)m_height);
             bgfx::setVertexBuffer(0, g_VertexBuffer);
             bgfx::setState(BGFX_STATE_DEFAULT);
             bgfx::submit(0, g_Program);
