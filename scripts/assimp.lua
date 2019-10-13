@@ -46,3 +46,12 @@ project assimp
 			"/wd4715", -- warning C4715: 'spv::Builder::makeFpConstant': not all control paths return a value
 			"/wd4838", -- warning C4838: conversion from 'spv::GroupOperation' to 'unsigned int' requires a narrowing conversion
 		}
+		
+-- example for linking
+project "shaderc"
+	kind "ConsoleApp"
+
+	links {
+		"assimp",
+		"glsl-optimizer"
+	}
