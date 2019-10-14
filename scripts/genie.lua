@@ -106,6 +106,7 @@ MODULE_DIR = path.getabsolute("../")
 BGFX_DIR   = path.getabsolute("..")
 BX_DIR     = os.getenv("BX_DIR")
 BIMG_DIR   = os.getenv("BIMG_DIR")
+ASSIMP_DIR = os.getenv("ASSIMP_DIR")
 
 local BGFX_BUILD_DIR = path.join(BGFX_DIR, ".build")
 local BGFX_THIRD_PARTY_DIR = path.join(BGFX_DIR, "3rdparty")
@@ -117,7 +118,11 @@ if not BIMG_DIR then
 	BIMG_DIR = path.getabsolute(path.join(BGFX_DIR, "../bimg"))
 end
 
-if not os.isdir(BX_DIR) or not os.isdir(BIMG_DIR) then
+if not ASSIMP_DIR then
+	ASSIMP_DIR = path.getabsolute(path.join(BGFX_DIR, "../assimp"))
+end
+
+if not os.isdir(BX_DIR) or not os.isdir(BIMG_DIR) or not os.isdir(ASSIMP_DIR) then
 
 	if not os.isdir(BX_DIR) then
 		print("bx not found at " .. BX_DIR)
@@ -125,6 +130,10 @@ if not os.isdir(BX_DIR) or not os.isdir(BIMG_DIR) then
 
 	if not os.isdir(BIMG_DIR) then
 		print("bimg not found at " .. BIMG_DIR)
+	end
+	
+	if not os.isdir(ASSIMP_DIR) then
+		print("clone assimp manually. assimp not found at " .. ASSIMP_DIR)
 	end
 
 	print("For more info see: https://bkaradzic.github.io/bgfx/build.html")
@@ -180,7 +189,7 @@ function exampleProjectDefaults()
 		"bgfx",
 		"bimg_decode",
 		"bimg",
-		"bx",
+		"bx"
 	}
 
 	if _OPTIONS["with-sdl"] then
@@ -444,12 +453,15 @@ function userProjectDefaults()
 		path.join(BGFX_DIR, "include"),
 		path.join(BGFX_DIR, "3rdparty"),
 		path.join(BGFX_DIR, "examples/common"),
+		path.join(ASSIMP_DIR, "BINARIES/x64/include"),
+		path.join(ASSIMP_DIR, "include"),
+		path.join(BGFX_DIR, "assimpimporter")
 	}
 
 	flags {
 		"FatalWarnings",
 	}
-
+	
 	links {
 		"example-glue",
 		"example-common",
@@ -457,6 +469,7 @@ function userProjectDefaults()
 		"bimg_decode",
 		"bimg",
 		"bx",
+		"assimpimporter"
 	}
 
 	if _OPTIONS["with-sdl"] then
@@ -505,6 +518,10 @@ function userProjectDefaults()
 	end
 
 	configuration { "vs*", "x32 or x64" }
+		buildoptions_cpp {
+			"/std:c++17"
+		}
+		
 		linkoptions {
 			"/ignore:4199", -- LNK4199: /DELAYLOAD:*.dll ignored; no imports found from *.dll
 		}
@@ -712,12 +729,12 @@ function userProject(_combined, ...)
 
 end
 
-
 dofile "bgfx.lua"
 
 group "libs"
 bgfxProject("", "StaticLib", {})
 
+dofile("assimpimporter.lua")
 dofile(path.join(BX_DIR,   "scripts/bx.lua"))
 dofile(path.join(BIMG_DIR, "scripts/bimg.lua"))
 dofile(path.join(BIMG_DIR, "scripts/bimg_decode.lua"))

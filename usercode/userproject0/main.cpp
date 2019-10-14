@@ -2,6 +2,7 @@
 #include "common.h"
 #include "bgfx_utils.h"
 #include "imgui/imgui.h"
+#include "assimp-importer.h"
 
 namespace
 {
@@ -104,6 +105,9 @@ public:
             bgfx::setVertexBuffer(0, g_VertexBuffer);
             bgfx::setState(BGFX_STATE_DEFAULT);
             bgfx::submit(0, g_Program);
+
+            // testing assimp importer
+            myfunc();
 
 
             bgfx::frame();
